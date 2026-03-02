@@ -634,63 +634,91 @@ export function RhRequestDetail({ requestId }: RhRequestDetailProps) {
                 </div>
 
                 <div className="grid gap-4 xl:grid-cols-2">
-                  <Textarea
-                    value={form.globalNote}
-                    onChange={(event) =>
-                      setForm((current) => ({ ...current, globalNote: event.target.value }))
-                    }
-                    placeholder={t('globalNote')}
-                  />
-                  <Textarea
-                    value={form.sectionProfile}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        sectionProfile: event.target.value,
-                      }))
-                    }
-                    placeholder={t('sectionProfile')}
-                  />
-                  <Textarea
-                    value={form.sectionExperience}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        sectionExperience: event.target.value,
-                      }))
-                    }
-                    placeholder={t('sectionExperience')}
-                  />
-                  <Textarea
-                    value={form.sectionSkills}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        sectionSkills: event.target.value,
-                      }))
-                    }
-                    placeholder={t('sectionSkills')}
-                  />
-                  <Textarea
-                    value={form.suggestions}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        suggestions: event.target.value,
-                      }))
-                    }
-                    placeholder={t('suggestions')}
-                  />
-                  <Textarea
-                    value={form.recommendedTemplate}
-                    onChange={(event) =>
-                      setForm((current) => ({
-                        ...current,
-                        recommendedTemplate: event.target.value,
-                      }))
-                    }
-                    placeholder={t('recommendedTemplate')}
-                  />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">{t('globalNote')}</label>
+                    <Textarea
+                      value={form.globalNote}
+                      onChange={(event) =>
+                        setForm((current) => ({ ...current, globalNote: event.target.value }))
+                      }
+                      placeholder={t('globalNote')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      {t('sectionProfile')}
+                    </label>
+                    <Textarea
+                      value={form.sectionProfile}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          sectionProfile: event.target.value,
+                        }))
+                      }
+                      placeholder={t('sectionProfile')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      {t('sectionExperience')}
+                    </label>
+                    <Textarea
+                      value={form.sectionExperience}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          sectionExperience: event.target.value,
+                        }))
+                      }
+                      placeholder={t('sectionExperience')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      {t('sectionSkills')}
+                    </label>
+                    <Textarea
+                      value={form.sectionSkills}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          sectionSkills: event.target.value,
+                        }))
+                      }
+                      placeholder={t('sectionSkills')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      {t('suggestions')}
+                    </label>
+                    <Textarea
+                      value={form.suggestions}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          suggestions: event.target.value,
+                        }))
+                      }
+                      placeholder={t('suggestions')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-slate-700">
+                      {t('recommendedTemplate')}
+                    </label>
+                    <Textarea
+                      value={form.recommendedTemplate}
+                      onChange={(event) =>
+                        setForm((current) => ({
+                          ...current,
+                          recommendedTemplate: event.target.value,
+                        }))
+                      }
+                      placeholder={t('recommendedTemplate')}
+                    />
+                  </div>
                 </div>
 
                 <div className="flex justify-start">

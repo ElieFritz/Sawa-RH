@@ -155,7 +155,7 @@ export function RhQueuePanel() {
   };
 
   const renderItem = (item: QueueItem, canAssign: boolean) => (
-    <Card key={item.id}>
+    <Card key={item.id} className="border-slate-950/8 bg-white text-slate-950">
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
@@ -172,12 +172,14 @@ export function RhQueuePanel() {
               {item.candidate.profile?.headline || '-'}
             </p>
           </div>
-          <p className="text-xs text-slate-500">
-            {new Date(item.createdAt).toLocaleDateString(locale)}
-          </p>
+          <div className="rounded-[1.4rem] border border-slate-950/8 bg-slate-50 px-4 py-3">
+            <p className="text-xs text-slate-500">
+              {new Date(item.createdAt).toLocaleDateString(locale)}
+            </p>
+          </div>
         </div>
 
-        <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
+        <div className="grid gap-3 rounded-[1.6rem] border border-slate-950/8 bg-slate-50 px-4 py-4 text-sm text-slate-600 sm:grid-cols-3">
           <p>
             <span className="font-semibold text-slate-950">{t('categoryLabel')}:</span>{' '}
             {locale === 'en' ? item.cv.category.nameEn : item.cv.category.nameFr}
@@ -195,7 +197,7 @@ export function RhQueuePanel() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href={`/${locale}/rh/request/${item.id}`}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white/80 px-5 py-3 text-sm font-semibold text-slate-900"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white px-5 py-3 text-sm font-semibold text-slate-950 shadow-sm"
           >
             {t('openRequest')}
           </Link>

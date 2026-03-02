@@ -229,7 +229,7 @@ export function CandidateReviewsPanel() {
 
       {!isLoading
         ? items.map((item) => (
-            <Card key={item.id}>
+            <Card key={item.id} className="border-slate-950/8 bg-white text-slate-950">
               <div className="space-y-5">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-3">

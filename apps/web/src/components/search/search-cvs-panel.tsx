@@ -270,51 +270,79 @@ export function SearchCvsPanel() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <Input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder={t('queryPlaceholder')}
-            />
-            <Select value={category} onChange={(event) => setCategory(event.target.value)}>
-              <option value="">{t('allCategories')}</option>
-              {categories.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {locale === 'en' ? item.nameEn : item.nameFr}
-                </option>
-              ))}
-            </Select>
-            <Select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as 'recent' | 'relevance')}
-            >
-              <option value="recent">{t('sortRecent')}</option>
-              <option value="relevance">{t('sortRelevance')}</option>
-            </Select>
-            <Input
-              value={country}
-              onChange={(event) => setCountry(event.target.value)}
-              placeholder={t('countryPlaceholder')}
-            />
-            <Input
-              value={city}
-              onChange={(event) => setCity(event.target.value)}
-              placeholder={t('cityPlaceholder')}
-            />
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">{t('queryPlaceholder')}</label>
+              <Input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder={t('queryPlaceholder')}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">{t('categoryLabel')}</label>
+              <Select value={category} onChange={(event) => setCategory(event.target.value)}>
+                <option value="">{t('allCategories')}</option>
+                {categories.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {locale === 'en' ? item.nameEn : item.nameFr}
+                  </option>
+                ))}
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">{t('resultModeLabel')}</label>
+              <Select
+                value={sort}
+                onChange={(event) => setSort(event.target.value as 'recent' | 'relevance')}
+              >
+                <option value="recent">{t('sortRecent')}</option>
+                <option value="relevance">{t('sortRelevance')}</option>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">
+                {t('countryPlaceholder')}
+              </label>
+              <Input
+                value={country}
+                onChange={(event) => setCountry(event.target.value)}
+                placeholder={t('countryPlaceholder')}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">{t('cityPlaceholder')}</label>
+              <Input
+                value={city}
+                onChange={(event) => setCity(event.target.value)}
+                placeholder={t('cityPlaceholder')}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
-              <Input
-                type="number"
-                min={0}
-                value={expMin}
-                onChange={(event) => setExpMin(event.target.value)}
-                placeholder={t('expMin')}
-              />
-              <Input
-                type="number"
-                min={0}
-                value={expMax}
-                onChange={(event) => setExpMax(event.target.value)}
-                placeholder={t('expMax')}
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">{t('expMin')}</label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={expMin}
+                  onChange={(event) => setExpMin(event.target.value)}
+                  placeholder={t('expMin')}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">{t('expMax')}</label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={expMax}
+                  onChange={(event) => setExpMax(event.target.value)}
+                  placeholder={t('expMax')}
+                />
+              </div>
             </div>
           </div>
 
@@ -384,7 +412,7 @@ export function SearchCvsPanel() {
 
       {!isLoading
         ? items.map((item) => (
-            <Card key={item.id}>
+            <Card key={item.id} className="border-slate-950/8 bg-white text-slate-950">
               <div className="space-y-4">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div className="space-y-2">
@@ -407,7 +435,7 @@ export function SearchCvsPanel() {
                       })}
                     </p>
                   </div>
-                  <div className="grid gap-3 text-xs text-slate-500 sm:text-right">
+                  <div className="grid gap-3 rounded-[1.4rem] border border-slate-950/8 bg-slate-50 px-4 py-3 text-xs text-slate-500 sm:text-right">
                     <p>{new Date(item.createdAt).toLocaleDateString(locale)}</p>
                     <p>{t('experience', { value: item.owner.yearsExperience })}</p>
                     {sort === 'relevance' ? (
@@ -416,7 +444,7 @@ export function SearchCvsPanel() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
+                <div className="grid gap-3 rounded-[1.6rem] border border-slate-950/8 bg-slate-50 px-4 py-4 text-sm text-slate-600 sm:grid-cols-3">
                   <p>
                     <span className="font-semibold text-slate-950">{t('locationLabel')}:</span>{' '}
                     {item.owner.city || '-'} / {item.owner.country || '-'}
@@ -431,9 +459,11 @@ export function SearchCvsPanel() {
                   </p>
                 </div>
 
-                <p className="text-sm leading-7 text-slate-600">
-                  {item.owner.headline || item.snippet || t('noSnippet')}
-                </p>
+                <div className="rounded-[1.6rem] border border-slate-950/8 bg-slate-50 px-4 py-4">
+                  <p className="text-sm leading-7 text-slate-600">
+                    {item.owner.headline || item.snippet || t('noSnippet')}
+                  </p>
+                </div>
 
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
