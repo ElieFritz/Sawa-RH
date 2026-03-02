@@ -11,6 +11,8 @@ import { extname } from 'path';
 @Injectable()
 export class StorageService {
   private client: SupabaseClient | null = null;
+  private bucketReady = false;
+  private bucketInitPromise: Promise<string> | null = null;
 
   constructor(private readonly configService: ConfigService) {}
 
@@ -20,7 +22,7 @@ export class StorageService {
     contentType: string;
   }) {
     const client = this.getClient();
-    const bucket = this.configService.get<string>('SUPABASE_STORAGE_BUCKET', 'cvs');
+    const bucket = await this.ensureBucketExists();
     const extension = extname(file.originalName).toLowerCase();
     const sanitizedBaseName = file.originalName
       .replace(extension, '')
@@ -47,7 +49,7 @@ export class StorageService {
 
   async createSignedUrl(filePath: string, options?: { download?: string; expiresIn?: number }) {
     const client = this.getClient();
-    const bucket = this.configService.get<string>('SUPABASE_STORAGE_BUCKET', 'cvs');
+    const bucket = await this.ensureBucketExists();
     const { data, error } = await client.storage.from(bucket).createSignedUrl(filePath, options?.expiresIn ?? 900, {
       download: options?.download,
     });
@@ -61,7 +63,7 @@ export class StorageService {
 
   async removePrivateCv(filePath: string) {
     const client = this.getClient();
-    const bucket = this.configService.get<string>('SUPABASE_STORAGE_BUCKET', 'cvs');
+    const bucket = await this.ensureBucketExists();
     const { error } = await client.storage.from(bucket).remove([filePath]);
 
     if (error) {
@@ -89,5 +91,74 @@ export class StorageService {
     });
 
     return this.client;
+  }
+
+  private getBucketName() {
+    return this.configService.get<string>('SUPABASE_STORAGE_BUCKET', 'cvs');
+  }
+
+  private async ensureBucketExists() {
+    const bucket = this.getBucketName();
+
+    if (this.bucketReady) {
+      return bucket;
+    }
+
+    if (!this.bucketInitPromise) {
+      this.bucketInitPromise = this.initializeBucket(bucket);
+    }
+
+    try {
+      return await this.bucketInitPromise;
+    } finally {
+      this.bucketInitPromise = null;
+    }
+  }
+
+  private async initializeBucket(bucket: string) {
+    const client = this.getClient();
+    const { error } = await client.storage.getBucket(bucket);
+
+    if (!error) {
+      this.bucketReady = true;
+      return bucket;
+    }
+
+    if (!this.isMissingBucketError(error)) {
+      throw new InternalServerErrorException('Unable to access CV storage bucket');
+    }
+
+    const { error: createError } = await client.storage.createBucket(bucket, {
+      public: false,
+    });
+
+    if (createError && !this.isAlreadyExistingBucketError(createError)) {
+      throw new InternalServerErrorException('Unable to initialize CV storage bucket');
+    }
+
+    this.bucketReady = true;
+    return bucket;
+  }
+
+  private isMissingBucketError(error: { message?: string | null; statusCode?: string | number }) {
+    const message = (error.message ?? '').toLowerCase();
+    const statusCode = String(error.statusCode ?? '');
+
+    return (
+      statusCode === '404' ||
+      message.includes('not found') ||
+      message.includes('does not exist')
+    );
+  }
+
+  private isAlreadyExistingBucketError(error: { message?: string | null; statusCode?: string | number }) {
+    const message = (error.message ?? '').toLowerCase();
+    const statusCode = String(error.statusCode ?? '');
+
+    return (
+      statusCode === '409' ||
+      message.includes('already exists') ||
+      message.includes('duplicate')
+    );
   }
 }

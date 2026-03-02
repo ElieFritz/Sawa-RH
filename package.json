@@ -4,11 +4,14 @@
   "private": true,
   "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20.0.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
+    "build:api:render": "pnpm --filter @sawa-rh/shared build && pnpm --filter @sawa-rh/api build",
+    "migrate:api:render": "pnpm --filter @sawa-rh/api prisma:migrate",
+    "start:api:render": "pnpm --filter @sawa-rh/api start",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "format": "prettier --write .",

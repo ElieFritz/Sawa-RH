@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: sawa-rh-api
+    runtime: node
+    plan: free
+    autoDeploy: true
+    rootDir: .
+    buildCommand: pnpm install --frozen-lockfile && pnpm build:api:render
+    preDeployCommand: pnpm migrate:api:render
+    startCommand: pnpm start:api:render
+    healthCheckPath: /health

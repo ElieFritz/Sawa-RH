@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
+import Script from 'next/script';
 
 import './globals.css';
 
@@ -19,10 +20,9 @@ export default function RootLayout({
     <html suppressHydrationWarning>
       <body suppressHydrationWarning>
         {process.env.NODE_ENV === 'development' ? (
-          <script
-            suppressHydrationWarning
-            dangerouslySetInnerHTML={{ __html: stripExtensionAttrsScript }}
-          />
+          <Script id="strip-extension-attrs" strategy="beforeInteractive">
+            {stripExtensionAttrsScript}
+          </Script>
         ) : null}
         {children}
       </body>

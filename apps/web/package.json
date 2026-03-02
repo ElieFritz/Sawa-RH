@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "node ./scripts/run-next-build.cjs",
+    "start": "node ./scripts/run-next-start.cjs",
     "lint": "next lint",
     "test": "node -e \"console.log('No web tests yet')\""
   },

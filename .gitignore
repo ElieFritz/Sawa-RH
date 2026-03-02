@@ -1,6 +1,8 @@
 node_modules
 .turbo
 .next
+.next-dev
+.next-build
 dist
 coverage
 .env

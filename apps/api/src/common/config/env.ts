@@ -19,6 +19,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().optional(),
   SMTP_FROM: z.string().email().optional(),
   APP_BASE_URL: z.string().url().default('http://localhost:3000'),
+  CORS_ORIGIN: z.string().optional(),
   THROTTLE_TTL: z.coerce.number().int().positive().default(60),
   THROTTLE_LIMIT: z.coerce.number().int().positive().default(20),
 });

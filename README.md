@@ -147,10 +147,73 @@ If you run `api` or `web` alone, build `@sawa-rh/shared` first so its `dist/` ou
 - `SMTP_PASS`
 - `SMTP_FROM`
 - `APP_BASE_URL`
+- `CORS_ORIGIN`
 - `THROTTLE_TTL`
 - `THROTTLE_LIMIT`
 - `SEED_ADMIN_EMAIL`
 - `SEED_ADMIN_PASSWORD`
+
+## Deployment
+
+### Render (API)
+
+The repository includes `render.yaml` for a Render Blueprint deployment of the NestJS API.
+
+Recommended flow:
+
+1. In Render, create a new Blueprint service from this repository.
+2. Use the generated `sawa-rh-api` web service.
+3. Set the required environment variables in Render:
+   - `DATABASE_URL`
+   - `JWT_ACCESS_SECRET`
+   - `JWT_REFRESH_SECRET`
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `SMTP_HOST`
+   - `SMTP_PORT`
+   - `SMTP_USER`
+   - `SMTP_PASS`
+   - `SMTP_FROM`
+   - `APP_BASE_URL` (your Vercel web URL)
+   - `CORS_ORIGIN` (your Vercel web URL, or a comma-separated allowlist)
+   - `SUPABASE_STORAGE_BUCKET` (default: `cvs`)
+4. Render will:
+   - install dependencies with `pnpm`
+   - build `@sawa-rh/shared`
+   - generate Prisma client
+   - build the NestJS API
+   - run `prisma migrate deploy` before each deploy
+5. Health checks use `GET /health`.
+
+Render command recap:
+
+- Root Directory: `.`
+- Build Command: `pnpm install --frozen-lockfile && pnpm build:api:render`
+- Pre-Deploy Command: `pnpm migrate:api:render`
+- Start Command: `pnpm start:api:render`
+
+Important:
+
+- Do not use `corepack enable` on Render. Their build image uses a read-only system path, which causes `EROFS` failures.
+- The repository now pins Node to `22.x` so Render uses an LTS runtime instead of `25.x`.
+
+### Vercel (Web)
+
+The web app is prepared for Vercel with `apps/web/vercel.json`.
+
+Recommended flow:
+
+1. Import this repository into Vercel.
+2. Set the project Root Directory to `apps/web`.
+3. Configure the required environment variables:
+   - `NEXT_PUBLIC_API_URL` (`https://your-render-service.onrender.com`)
+   - `NEXT_PUBLIC_APP_NAME` (`SAWA RH`)
+4. Deploy normally.
+
+Notes:
+
+- Local production builds use `.next-build` to avoid colliding with `next dev`.
+- Vercel forces `NEXT_DIST_DIR=.next`, so it still uses the standard Next.js output directory expected by the platform.
 
 ## API Surface Implemented Now
 
