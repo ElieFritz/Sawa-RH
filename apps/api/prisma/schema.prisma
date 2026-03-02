@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MODERATOR
+  RH_PRO
+  CANDIDATE
+  RECRUITER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+}
+
+enum ProfileCompletionStatus {
+  INCOMPLETE
+  COMPLETE
+}
+
+enum VerificationStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum Locale {
+  FR
+  EN
+}
+
+enum CvStatus {
+  DRAFT
+  ACTIVE
+  HIDDEN
+  DELETED
+}
+
+enum FileType {
+  PDF
+  DOCX
+}
+
+enum ReviewRequestStatus {
+  OPEN
+  ASSIGNED
+  SUBMITTED
+  CLOSED
+}
+
+enum ReportTargetType {
+  CV
+  USER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  REJECTED
+}
+
+enum AuditAction {
+  VIEW_CV
+  DOWNLOAD_CV
+  SEARCH_CV
+  UPLOAD_CV
+  DELETE_CV
+  ASSIGN_REQUEST
+  SUBMIT_REVIEW
+  BAN_USER
+  HIDE_CV
+  APPROVE_VERIFICATION
+}
+
+model User {
+  id              String          @id @default(uuid()) @db.Uuid
+  email           String          @unique
+  passwordHash    String          @map("password_hash")
+  role            UserRole        @default(CANDIDATE)
+  status          UserStatus      @default(ACTIVE)
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+  profile         Profile?
+  ownedCvs        CV[]
+  reviewRequests  ReviewRequest[] @relation("CandidateReviewRequests")
+  assignedQueue   ReviewRequest[] @relation("AssignedRhRequests")
+  writtenReviews  Review[]
+  reportsFiled    Report[]        @relation("ReporterReports")
+  auditLogs       AuditLog[]      @relation("ActorAuditLogs")
+
+  @@map("users")
+}
+
+model Profile {
+  userId             String                  @id @map("user_id") @db.Uuid
+  fullName           String?                 @map("full_name")
+  country            String?
+  city               String?
+  phone              String?
+  headline           String?
+  yearsExperience    Int                     @default(0) @map("years_experience")
+  locale             Locale                  @default(FR)
+  completionStatus   ProfileCompletionStatus @default(INCOMPLETE) @map("completion_status")
+  verificationStatus VerificationStatus      @default(PENDING_REVIEW) @map("verification_status")
+  verifiedBadge      Boolean                 @default(false) @map("verified_badge")
+  updatedAt          DateTime                @updatedAt @map("updated_at")
+  user               User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([country, city])
+  @@index([yearsExperience])
+  @@map("profiles")
+}
+
+model JobCategory {
+  id        String   @id @default(uuid()) @db.Uuid
+  nameFr    String   @map("name_fr")
+  nameEn    String   @map("name_en")
+  slug      String   @unique
+  isActive  Boolean  @default(true) @map("is_active")
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  cvs       CV[]
+
+  @@index([isActive, sortOrder])
+  @@map("job_categories")
+}
+
+model CV {
+  id             String    @id @default(uuid()) @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  categoryId     String    @map("category_id") @db.Uuid
+  title          String
+  filePath       String    @map("file_path")
+  fileType       FileType  @map("file_type")
+  status         CvStatus  @default(DRAFT)
+  searchableText String?   @map("searchable_text")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+  deletedAt      DateTime? @map("deleted_at")
+  owner          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category       JobCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  reviewRequests ReviewRequest[]
+
+  @@index([userId, status])
+  @@index([categoryId, status])
+  @@index([createdAt])
+  @@map("cvs")
+}
+
+model ReviewRequest {
+  id           String            @id @default(uuid()) @db.Uuid
+  cvId         String            @map("cv_id") @db.Uuid
+  candidateId  String            @map("candidate_id") @db.Uuid
+  status       ReviewRequestStatus @default(OPEN)
+  assignedRhId String?           @map("assigned_rh_id") @db.Uuid
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  cv           CV                @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  candidate    User              @relation("CandidateReviewRequests", fields: [candidateId], references: [id], onDelete: Cascade)
+  assignedRh   User?             @relation("AssignedRhRequests", fields: [assignedRhId], references: [id], onDelete: SetNull)
+  review       Review?
+
+  @@index([status, createdAt])
+  @@index([assignedRhId])
+  @@map("review_requests")
+}
+
+model Review {
+  id                  String        @id @default(uuid()) @db.Uuid
+  requestId           String        @unique @map("request_id") @db.Uuid
+  rhId                String        @map("rh_id") @db.Uuid
+  scoreAts            Int           @map("score_ats")
+  scoreReadability    Int           @map("score_readability")
+  scoreConsistency    Int           @map("score_consistency")
+  globalNote          String        @map("global_note")
+  sectionProfile      String        @map("section_profile")
+  sectionExperience   String        @map("section_experience")
+  sectionSkills       String        @map("section_skills")
+  suggestions         String
+  recommendedTemplate String        @map("recommended_template")
+  createdAt           DateTime      @default(now()) @map("created_at")
+  request             ReviewRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  rh                  User          @relation(fields: [rhId], references: [id], onDelete: Cascade)
+
+  @@index([rhId, createdAt])
+  @@map("reviews")
+}
+
+model Report {
+  id             String           @id @default(uuid()) @db.Uuid
+  reporterUserId String           @map("reporter_user_id") @db.Uuid
+  targetType     ReportTargetType @map("target_type")
+  targetId       String           @map("target_id")
+  reason         String
+  status         ReportStatus     @default(OPEN)
+  createdAt      DateTime         @default(now()) @map("created_at")
+  resolvedAt     DateTime?        @map("resolved_at")
+  reporter       User             @relation("ReporterReports", fields: [reporterUserId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+  @@map("reports")
+}
+
+model AuditLog {
+  id          String      @id @default(uuid()) @db.Uuid
+  actorUserId String?     @map("actor_user_id") @db.Uuid
+  action      AuditAction
+  targetType  String      @map("target_type")
+  targetId    String?     @map("target_id")
+  metadata    Json?
+  ip          String?
+  userAgent   String?     @map("user_agent")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  actor       User?       @relation("ActorAuditLogs", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@index([targetType, targetId])
+  @@map("audit_logs")
+}
