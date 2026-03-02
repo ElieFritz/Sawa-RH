@@ -1,4 +1,8 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ??
+  (process.env.NODE_ENV === 'development'
+    ? 'http://localhost:4000'
+    : 'https://sawa-rh.onrender.com');
 
 type ApiFetchOptions = RequestInit & {
   accessToken?: string;

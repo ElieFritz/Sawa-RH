@@ -129,6 +129,7 @@ If you run `api` or `web` alone, build `@sawa-rh/shared` first so its `dist/` ou
 
 - `NEXT_PUBLIC_API_URL`
 - `NEXT_PUBLIC_APP_NAME`
+- `NEXT_PUBLIC_SITE_URL`
 
 ### API
 
@@ -196,6 +197,8 @@ Important:
 
 - Do not use `corepack enable` on Render. Their build image uses a read-only system path, which causes `EROFS` failures.
 - The repository now pins Node to `22.x` so Render uses an LTS runtime instead of `25.x`.
+- Backend public URL: `https://sawa-rh.onrender.com`
+- `CORS_ORIGIN` must contain the frontend origin, not `https://sawa-rh.onrender.com`
 
 ### Vercel (Web)
 
@@ -206,8 +209,9 @@ Recommended flow:
 1. Import this repository into Vercel.
 2. Set the project Root Directory to `apps/web`.
 3. Configure the required environment variables:
-   - `NEXT_PUBLIC_API_URL` (`https://your-render-service.onrender.com`)
+   - `NEXT_PUBLIC_API_URL` (`https://sawa-rh.onrender.com`)
    - `NEXT_PUBLIC_APP_NAME` (`SAWA RH`)
+   - `NEXT_PUBLIC_SITE_URL` (`https://your-frontend.vercel.app`)
 4. Deploy normally.
 
 Notes:

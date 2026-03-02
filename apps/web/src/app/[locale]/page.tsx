@@ -1,15 +1,79 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 
 import { LandingNav } from '@/components/marketing/landing-nav';
+import { getAbsoluteUrl, getLocaleAlternates } from '@/lib/seo';
 
 type LandingPageProps = {
   params: Promise<{ locale: string }>;
 };
 
+export async function generateMetadata({
+  params,
+}: LandingPageProps): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'Landing' });
+  const title = t('heroTitle');
+  const description = t('heroDescription');
+  const canonical = getAbsoluteUrl(`/${locale}`);
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical,
+      languages: getLocaleAlternates(),
+    },
+    openGraph: {
+      type: 'website',
+      url: canonical,
+      locale: locale === 'fr' ? 'fr_FR' : 'en_US',
+      title,
+      description,
+      siteName: 'SAWA RH',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
+  };
+}
+
 export default async function LandingPage({ params }: LandingPageProps) {
   const { locale } = await params;
   const t = await getTranslations('Landing');
+  const structuredData = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'SAWA RH',
+      url: getAbsoluteUrl(`/${locale}`),
+      description: t('heroDescription'),
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'SAWA RH',
+      url: getAbsoluteUrl(`/${locale}`),
+      inLanguage: locale,
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      name: 'SAWA RH',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web',
+      url: getAbsoluteUrl(`/${locale}`),
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'EUR',
+      },
+      description: t('heroDescription'),
+    },
+  ];
 
   const challenges = [
     {
@@ -101,6 +165,10 @@ export default async function LandingPage({ params }: LandingPageProps) {
 
   return (
     <div className="min-h-screen text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
       <div className="relative overflow-hidden px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute left-[-10%] top-0 h-80 w-80 rounded-full bg-amber-300/15 blur-3xl" />
